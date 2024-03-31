@@ -1,0 +1,64 @@
+{% extends "base.html" %} {% block content %}
+<h2>Find Similar Articles</h2>
+<form method="get" action="" class="input-group mb-3">
+  <input
+    type="text"
+    name="query"
+    value="{{ search_query }}"
+    placeholder="Enter search query"
+    class="form-control"
+  />
+  <input
+    type="number"
+    name="topN"
+    value="{{ request.GET.topN|default_if_none:5 }}"
+    min="1"
+    placeholder="Number of Results"
+    class="form-control"
+    style="max-width: 4rem !important"
+  />
+  <button type="submit" class="btn btn-outline-secondary">Search</button>
+</form>
+
+{% if articles_with_similarity %}
+<h2>Similar Articles:</h2>
+<div class="h-100 d-grid gap-3">
+  {% for article, similarity in articles_with_similarity %}
+  <div
+    class="card {% if similarity > similarity_threshold %}border-success{% endif %}"
+    style="height: fit-content"
+  >
+    <div class="card-body py-2">
+      <h5
+        class="card-title"
+        style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+      >
+        {{ article.question }}
+      </h5>
+      <h6
+        class="card-subtitle mb-2{% if similarity > similarity_threshold %}text-success{% else %}text-muted {% endif %}"
+      >
+        Similarity: {{ similarity }}
+      </h6>
+      <p
+        class="card-text"
+        style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+      >
+        {{ article.answer|truncatechars:256 }}
+      </p>
+      <a href="{% url 'article_detail' article.pk %}" class="card-link">
+        Details
+      </a>
+      <a
+        href="{% url 'edit_article' article.pk %}"
+        class="card-link link-secondary"
+      >
+        Edit
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p>No articles found.</p>
+{% endif %} {% endblock %}
