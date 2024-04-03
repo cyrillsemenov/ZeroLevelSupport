@@ -6,10 +6,12 @@ WORKDIR /usr/src/webapp
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     gfortran \
     libopenblas-dev \
     liblapack-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # install dependencies
@@ -23,12 +25,12 @@ EXPOSE 8000
 COPY ./entrypoint.sh /usr/src/webapp/entrypoint.sh
 RUN chmod +x /usr/src/webapp/entrypoint.sh
 
-# copy project
 COPY . /usr/src/webapp/
 
-# run entrypoint.sh
-ENTRYPOINT ["/usr/src/webapp/entrypoint.sh"]
+HEALTHCHECK --interval=10m --timeout=5s \
+    CMD curl -f http://localhost/ || exit 1
 
-# # Define the command to run your app using gunicorn
-# # Adjust the command according to how you start your Django project
-# CMD ["gunicorn", "myproject.wsgi:application", "--bind", "0.0.0.0:8000"]
+RUN addgroup --system webapp && adduser --system --group webapp
+USER webapp
+
+ENTRYPOINT ["/usr/src/webapp/entrypoint.sh"]
