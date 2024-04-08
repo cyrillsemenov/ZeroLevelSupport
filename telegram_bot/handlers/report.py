@@ -1,16 +1,16 @@
 import json
 
+import yaml
 from aiogram import F, Router
 from aiogram.filters import ExceptionTypeFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.types.error_event import ErrorEvent
+from asgiref.sync import sync_to_async
+
 # from loguru import logger
 from pydantic import ValidationError
-import yaml
-
-from asgiref.sync import sync_to_async
 
 from ..app.app import App
 from ..form import Form
@@ -29,7 +29,7 @@ class CollectReport(StatesGroup):
     finishing = State()
 
 
-REPORT_TEXT_PREFIX = "Получен репорт\n====\n<pre language=\"yaml\">\n"
+REPORT_TEXT_PREFIX = 'Получен репорт\n====\n<pre language="yaml">\n'
 REPORT_TEXT_SUFFIX = "</pre>\n===="
 
 
@@ -37,12 +37,11 @@ REPORT_TEXT_SUFFIX = "</pre>\n===="
 @router.message(F.web_app_data)
 async def enter_date(message: Message) -> None:
     data = message.web_app_data.data
-    report = await sync_to_async(Report.from_json)(data, status='DOWN')
+    report = await sync_to_async(Report.from_json)(data, status="DOWN")
     await message.answer(
-        REPORT_TEXT_PREFIX + yaml.dump(
-            await sync_to_async(report.to_dict)(),
-            allow_unicode=True
-        ) + REPORT_TEXT_SUFFIX,
+        REPORT_TEXT_PREFIX
+        + yaml.dump(await sync_to_async(report.to_dict)(), allow_unicode=True)
+        + REPORT_TEXT_SUFFIX,
         # reply_markup=get_report_callback_keyboard(),
     )
 
@@ -96,4 +95,4 @@ async def handle_stop_iteration(event: ErrorEvent, message: Message, state: FSMC
 async def handle_validation_error(
     event: ErrorEvent, message: Message, state: FSMContext
 ):
-    await message.answer("Try again pls!", reply_markup=ReplyKeyboardRemove())
+    await message.answer(str(event.exception), reply_markup=ReplyKeyboardRemove())
