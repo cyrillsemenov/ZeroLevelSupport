@@ -39,9 +39,11 @@ BOT_PROPERTIES = DefaultBotProperties(
     link_preview_show_above_text=os.getenv("BOT_LINK_PREVIEW_ABOVE_TEXT"),
 )
 
+HOST = os.environ["HOST"]
+
 WEBHOOK_SECRET = secrets.token_urlsafe(32)
 WEBHOOK_PATH = "/bot/{bot_token}"
-WEBHOOK_URL = f"https://a9c5-78-58-238-159.ngrok-free.app/api/bot/{BOT_API_KEY}"
+WEBHOOK_URL = f"{HOST}/api/bot/{BOT_API_KEY}"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
