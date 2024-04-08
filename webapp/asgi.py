@@ -62,8 +62,8 @@ def get_application() -> FastAPI:
         secret_token=settings.WEBHOOK_SECRET,
     )
     app.mount("/static", StaticFiles(directory=settings.STATIC_ROOT), name="static")
-    app.mount("/", WSGIMiddleware(get_wsgi_application()))
     app.include_router(api_router, prefix="/api")
+    app.mount("/", WSGIMiddleware(get_wsgi_application()))
     return app
 
 
