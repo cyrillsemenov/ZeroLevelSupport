@@ -10,8 +10,8 @@
   />
   <input
     type="number"
-    name="topN"
-    value="{{ request.GET.topN|default_if_none:5 }}"
+    name="top"
+    value="{{ request.GET.top|default:5 }}"
     min="1"
     placeholder="Number of Results"
     class="form-control"
@@ -22,10 +22,10 @@
 
 {% if articles_with_similarity %}
 <h2>Similar Articles:</h2>
-<div class="h-100 d-grid gap-3">
+<div class="container h-100">
   {% for article, similarity in articles_with_similarity %}
   <div
-    class="card {% if similarity > similarity_threshold %}border-success{% endif %}"
+    class="row my-2 card {% if similarity > similarity_threshold %}border-success{% endif %}"
     style="height: fit-content"
   >
     <div class="card-body py-2">

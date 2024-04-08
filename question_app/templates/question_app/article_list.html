@@ -1,8 +1,8 @@
 {% extends "base.html" %} {% block content %}
 <h2>Articles</h2>
-<div class="h-100 d-grid gap-3">
+<div class="container h-100">
   {% for article in articles %}
-  <div class="card" style="height: fit-content">
+  <div class="row my-2 card" style="height: fit-content">
     <div class="card-body py-2">
       <h5
         class="card-title"
