@@ -15,6 +15,7 @@ from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webapp.settings")
@@ -60,8 +61,9 @@ def get_application() -> FastAPI:
         api_token=settings.BOT_API_KEY,
         secret_token=settings.WEBHOOK_SECRET,
     )
+    app.mount("/static", StaticFiles(directory=settings.STATIC_ROOT), name="static")
+    app.mount("/", WSGIMiddleware(get_wsgi_application()))
     app.include_router(api_router, prefix="/api")
-    app.mount("/django", WSGIMiddleware(get_wsgi_application()))
     return app
 
 
