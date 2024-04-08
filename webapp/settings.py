@@ -39,11 +39,11 @@ BOT_PROPERTIES = DefaultBotProperties(
     link_preview_show_above_text=os.getenv("BOT_LINK_PREVIEW_ABOVE_TEXT"),
 )
 
-WEB_APP_HOST = os.environ["WEB_APP_HOST"]
+HOST = os.environ["HOST"]
 
 WEBHOOK_SECRET = secrets.token_urlsafe(32)
 WEBHOOK_PATH = "/bot/{bot_token}"
-WEBHOOK_URL = f"{WEB_APP_HOST}/api/bot/{BOT_API_KEY}"
+WEBHOOK_URL = f"{HOST}/api/bot/{BOT_API_KEY}"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
