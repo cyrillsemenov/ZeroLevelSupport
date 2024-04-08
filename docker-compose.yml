@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -13,7 +13,8 @@ services:
   web:
     build: .
     # command: gunicorn webapp.wsgi:application --bind 0.0.0.0:8000
-    command: python manage.py runserver 0.0.0.0:8000
+    command: uvicorn webapp.asgi:app --reload --host 0.0.0.0
+    # command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/usr/src/webapp/
       - /usr/src/webapp/__pycache__
@@ -24,16 +25,16 @@ services:
     depends_on:
       - db
 
-  bot:
-    build: .
-    command: python manage.py run_telegram_bot
-    volumes:
-      - .:/usr/src/webapp/
-    env_file:
-      - .env
-    depends_on:
-      - web
-      - db
+  # bot:
+  #   build: .
+  #   command: python manage.py run_telegram_bot
+  #   volumes:
+  #     - .:/usr/src/webapp/
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - web
+  #     - db
 
 volumes:
   postgres_data:
