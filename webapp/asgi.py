@@ -56,11 +56,7 @@ def get_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.add_middleware(
-        BotMiddleware,
-        api_token=settings.BOT_API_KEY,
-        secret_token=settings.WEBHOOK_SECRET,
-    )
+    app.add_middleware(BotMiddleware)
     app.mount("/static", StaticFiles(directory=settings.STATIC_ROOT), name="static")
     app.include_router(api_router, prefix="/api")
     app.mount("/", WSGIMiddleware(get_wsgi_application()))

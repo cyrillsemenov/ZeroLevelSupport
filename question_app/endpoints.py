@@ -1,41 +1,50 @@
-import asyncio
+from typing import Annotated
 
 from aiogram import types
 from django.conf import settings
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, Depends, Header, HTTPException
 from starlette.requests import Request
 
 from question_app.models import KnowledgeBase
+from question_app.schemas import Article, SearchResult
 from question_app.utils import Transformer
 
 api_router = APIRouter()
 
 
-@api_router.post(settings.WEBHOOK_PATH)
-async def bot_webhook(update: dict, request: Request):
+async def verify_secret(x_telegram_bot_api_secret_token: Annotated[str, Header()]):
+    if x_telegram_bot_api_secret_token != settings.WEBHOOK_SECRET:
+        raise HTTPException(status_code=404)
+
+
+@api_router.post(
+    settings.WEBHOOK_PATH,
+    response_model=types.Update,
+    dependencies=[
+        Depends(verify_secret),
+    ],
+)
+async def bot_webhook(bot_token: str, update: dict, request: Request):
+    if bot_token != settings.BOT_API_KEY:
+        raise HTTPException(status_code=404)
     telegram_update = types.Update(**update)
     dp = request.state.dp
     bot = request.state.bot
     await dp._process_update(bot=bot, update=telegram_update)
 
 
-@api_router.get(settings.WEBHOOK_PATH)
-async def bot_status(request: Request):
+@api_router.get(settings.WEBHOOK_PATH, response_model=types.User)
+async def bot_status(bot_token: str, request: Request):
+    if bot_token != settings.BOT_API_KEY:
+        raise HTTPException(status_code=404)
     bot = request.state.bot
     return await bot.me()
 
 
-@api_router.get("/similar")
+@api_router.get("/similar", response_model=SearchResult)
 def get_n_similar(question: str = "", n: int = 5):
     transformer = Transformer.get()
-    result = {
-        "searchQuery": question,
-        "topN": n,
-        "similarityThreshold": transformer.similarity_threshold,
-        "considerSimilar": transformer.consider_similar,
-        "suggestions": [],
-        "resultLen": 0,
-    }
+    result = SearchResult.default(question, n, transformer)
     if question:
         articles_similarity = transformer.find_n_similar(question, n)
         articles_with_similarity = []
@@ -43,24 +52,13 @@ def get_n_similar(question: str = "", n: int = 5):
             article = KnowledgeBase.objects.filter(question=article_name).first()
             if article:
                 articles_with_similarity.append(
-                    {
-                        "question": article.question,
-                        "answer": article.answer,
-                        "similarity": similarity,
-                    }
+                    Article(
+                        question=article.question,
+                        similarity=similarity,
+                        answer=article.answer,
+                        flags=transformer.get_flags(article.question),
+                    )
                 )
-        result["suggestions"].extend(articles_with_similarity)
-        result["resultLen"] += len(articles_with_similarity)
+        result.suggestions.extend(articles_with_similarity)
+        result.result_len += len(articles_with_similarity)
     return result
-
-
-@api_router.get("/bot")
-async def get_bot_status(background_tasks: BackgroundTasks):
-    tasks = [t for t in asyncio.all_tasks() if t.get_name() == "tg_bot"]
-    task = None
-
-    if not tasks:
-        return (True, True)
-    if tasks:
-        task = tasks[0]
-    return (task.done(), task.cancelled())
