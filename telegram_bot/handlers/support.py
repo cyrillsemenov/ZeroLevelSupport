@@ -35,6 +35,7 @@ class Support(StatesGroup):
 async def process_question(message: Message, state: FSMContext) -> None:
     transformer = await Transformer.a_get()
     articles_similarity = await transformer.a_find_n_similar(message.text, 3)
+    flags = {q: transformer.get_flags(q) for q, _ in articles_similarity}
     if not articles_similarity:
         await state.update_data(question=message.text)
         await state.set_state(Support.first_level)
@@ -43,6 +44,12 @@ async def process_question(message: Message, state: FSMContext) -> None:
         answer = await KnowledgeBase.objects.filter(
             question=articles_similarity[0][0]
         ).afirst()
+        anwer_flags = flags.get(answer.question, [])
+        print(anwer_flags)
+        print(flags)
+        if anwer_flags:
+            if "Report" in anwer_flags:
+                await message.answer("Fire!")
         await message.answer(
             f"{answer.answer}\n\n<b>Так же предлагаю прочитать ответы вот на эти вопросы:</b>",
             reply_markup=ReplyKeyboardMarkup(
@@ -51,7 +58,11 @@ async def process_question(message: Message, state: FSMContext) -> None:
                     #     KeyboardButton(text="Yes"),
                     #     KeyboardButton(text="No"),
                     # ],
-                    *[[KeyboardButton(text=q)] for q, _ in articles_similarity[1:]],
+                    *[
+                        [KeyboardButton(text=q)]
+                        for q, _ in articles_similarity[1:]
+                        if "Do not suggest" not in flags.get(q, [])
+                    ],
                     [KeyboardButton(text="Cancel")],
                 ],
                 resize_keyboard=True,
@@ -63,7 +74,11 @@ async def process_question(message: Message, state: FSMContext) -> None:
             "<b>Maybe you would find one of theese articles useful?</b>",
             reply_markup=ReplyKeyboardMarkup(
                 keyboard=[
-                    *[[KeyboardButton(text=q)] for q, _ in articles_similarity],
+                    *[
+                        [KeyboardButton(text=q)]
+                        for q, _ in articles_similarity
+                        if "Do not suggest" not in flags.get(q, [])
+                    ],
                     [KeyboardButton(text="🚫 Нет, соедини меня с оператором")],
                     [KeyboardButton(text="Cancel")],
                 ],
