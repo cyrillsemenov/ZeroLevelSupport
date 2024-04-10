@@ -1,24 +1,6 @@
-{% extends "base.html" %} {% block content %}
-<h2>Find Similar Articles</h2>
-<form method="get" action="" class="input-group mb-3">
-  <input
-    type="text"
-    name="query"
-    value="{{ search_query }}"
-    placeholder="Enter search query"
-    class="form-control"
-  />
-  <input
-    type="number"
-    name="top"
-    value="{{ request.GET.top|default:5 }}"
-    min="1"
-    placeholder="Number of Results"
-    class="form-control"
-    style="max-width: 4rem !important"
-  />
-  <button type="submit" class="btn btn-outline-secondary">Search</button>
-</form>
+{% extends "base.html" %}
+{% block title %}Search{%endblock title%}
+{% block content %}
 
 {% if articles_with_similarity %}
 <h2>Similar Articles:</h2>

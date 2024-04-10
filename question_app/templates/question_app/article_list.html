@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block title %}All articles{%endblock title%}
+{% block content %}
 <h2>Articles</h2>
 <div class="container h-100">
   {% for article in articles %}
@@ -64,14 +66,4 @@
     </li>
   </ul>
 </nav>
-
-<div class="d-grid p-3 d-md-flex justify-content-md-end">
-  <a
-    href="{% url 'add_article' %}"
-    class="btn btn-success btn-lg"
-    role="button"
-  >
-    Add Article
-  </a>
-</div>
 {% endblock %}

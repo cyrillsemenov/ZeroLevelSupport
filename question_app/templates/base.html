@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -19,30 +19,59 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">KnowledgeBase</a>
+        <a class="navbar-brand" href="{% url 'article_list' %}">
+          KnowledgeBase
+        </a>
         <button
           class="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
+          data-bs-target="#navigation"
+          aria-controls="navigation"
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a
-                class="nav-link active"
-                aria-current="page"
-                href="{% url 'add_article' %}"
-                >Add Article</a
-              >
-            </li>
-            <!-- Add more navbar items here -->
-          </ul>
+        <div
+          class="navbar-collapse collapse show"
+          id="navigation"
+          style="justify-content: space-between"
+        >
+          <a
+            href="{% url 'add_article' %}"
+            class="btn btn-success me-auto mb-2 mb-lg-0"
+            role="button"
+          >
+            Add Article
+          </a>
+
+          <form
+            method="get"
+            action="{% url 'similar_articles' %}"
+            class="input-group d-flex"
+            style="width: auto"
+          >
+            <input
+              type="text"
+              name="query"
+              value="{{ request.GET.query }}"
+              placeholder="Enter search query"
+              class="form-control"
+            />
+            <input
+              type="number"
+              name="top"
+              value="{{ request.GET.top|default:'5' }}"
+              min="1"
+              placeholder="Number of Results"
+              class="form-control"
+              style="max-width: 4rem !important"
+            />
+            <button type="submit" class="btn btn-outline-secondary">
+              Search
+            </button>
+          </form>
         </div>
       </div>
     </nav>
