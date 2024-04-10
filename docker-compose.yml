@@ -13,7 +13,7 @@ services:
   web:
     build: .
     # command: gunicorn webapp.wsgi:application --bind 0.0.0.0:8000
-    command: uvicorn webapp.asgi:app --reload --host 0.0.0.0
+    command: uvicorn webapp.asgi:app --reload --reload-include *.html --host 0.0.0.0
     # command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/usr/src/webapp/
