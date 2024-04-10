@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 REMOVE_PUNCTUATION = str.maketrans("", "", string.punctuation + "\n\r")
 
 
-class Transformer:
-    _transformer: Transformer
-    _transformer_ready = False
+class Solver:
+    _solver: Solver
+    _solver_ready = False
     _base: Dict[str, List[float]] = {}
     _synonyms: Dict[str, List[float]] = {}
 
@@ -155,20 +155,20 @@ class Transformer:
     @classmethod
     def get(
         cls, api_key: Optional[str] = None, model: str = "text-embedding-3-large"
-    ) -> Transformer:
-        if not cls._transformer_ready:
+    ) -> Solver:
+        if not cls._solver_ready:
             api_key = os.getenv("OPENAI_API_KEY", api_key)
             if api_key:
-                cls._transformer = Transformer(api_key, model)
-                cls._transformer_ready = True
+                cls._solver = Solver(api_key, model)
+                cls._solver_ready = True
             else:
                 raise RuntimeError("Provide OpenAI API key and model name")
-        return cls._transformer
+        return cls._solver
 
     @classmethod
     async def a_get(
         cls, api_key: Optional[str] = None, model: str = "text-embedding-3-large"
-    ) -> Transformer:
+    ) -> Solver:
         return await sync_to_async(cls.get)(api_key, model)
 
     async def a_find_n_similar(

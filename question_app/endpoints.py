@@ -7,7 +7,7 @@ from starlette.requests import Request
 
 from question_app.models import KnowledgeBase
 from question_app.schemas import Article, SearchResult
-from question_app.utils import Transformer
+from question_app.utils import Solver
 
 api_router = APIRouter()
 
@@ -46,10 +46,10 @@ async def bot_status(bot_token: str, request: Request):
 
 @api_router.get("/similar", response_model=SearchResult)
 def get_n_similar(question: str = "", n: int = 5):
-    transformer = Transformer.get()
-    result = SearchResult.default(question, n, transformer)
+    solver = Solver.get()
+    result = SearchResult.default(question, n, solver)
     if question:
-        articles_similarity = transformer.find_n_similar(question, n)
+        articles_similarity = solver.find_n_similar(question, n)
         articles_with_similarity = []
         for article_name, similarity in articles_similarity:
             article = KnowledgeBase.objects.filter(question=article_name).first()
@@ -59,7 +59,7 @@ def get_n_similar(question: str = "", n: int = 5):
                         question=article.question,
                         similarity=similarity,
                         answer=article.answer,
-                        flags=transformer.get_flags(article.question),
+                        flags=solver.get_flags(article.question),
                     )
                 )
         result.suggestions.extend(articles_with_similarity)

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from question_app.utils import Transformer
+from question_app.utils import Solver
 
 
 class Command(BaseCommand):
@@ -18,8 +18,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        transformer = Transformer.get(api_key=options["api_key"])
-        transformer.update_base(options["update_all"])
+        solver = Solver.get(api_key=options["api_key"])
+        solver.update_base(options["update_all"])
 
         self.stdout.write(
             self.style.SUCCESS(

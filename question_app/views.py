@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import KnowledgeBaseForm
 from .models import KnowledgeBase
-from .utils import Transformer
+from .utils import Solver
 
 
 def add_article(request):
@@ -57,17 +57,17 @@ def article_detail(request, pk):
 def similar_articles_view(request):
     search_query = request.GET.get("query", "")
     top_n = int(request.GET.get("top", 5))
-    transformer = Transformer.get()
+    solver = Solver.get()
 
     context = {
         "articles_with_similarity": [],
         "search_query": search_query,
-        "similarity_threshold": transformer.consider_similar,
+        "similarity_threshold": solver.consider_similar,
     }
 
     if search_query:
         # Retrieve similar articles as a list of tuples (article_name, similarity)
-        articles_similarity = transformer.find_n_similar(search_query, top_n)
+        articles_similarity = solver.find_n_similar(search_query, top_n)
         articles_with_similarity = []
         for article_name, similarity in articles_similarity:
             article = KnowledgeBase.objects.filter(question=article_name).first()

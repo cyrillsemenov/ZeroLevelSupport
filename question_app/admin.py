@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 
 from .models import Flag, KnowledgeBase, Synonym
-from .utils import Transformer
+from .utils import Solver
 
 
 @admin.register(KnowledgeBase)
@@ -26,9 +26,9 @@ class KnowledgeBaseAdmin(admin.ModelAdmin):
     embedding_indicator.short_description = "Embedding Created"
 
     def update_embedding(self, request, queryset):
-        transformer = Transformer.get()
+        solver = Solver.get()
         for kb in queryset:
-            embedding = transformer.generate_embeddings(
+            embedding = solver.generate_embeddings(
                 [
                     kb.question,
                 ]

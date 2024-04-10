@@ -16,7 +16,7 @@ from aiogram.types import (
 from aiogram.types.error_event import ErrorEvent
 
 from question_app.models import KnowledgeBase
-from question_app.utils import Transformer
+from question_app.utils import Solver
 
 from ..app.app import App
 from ..keyboards import welcome_kb
@@ -35,14 +35,14 @@ class Support(StatesGroup):
 @router.message(Support.zero_level)
 @flags.chat_action(initial_sleep=2, action=ChatAction.TYPING, interval=3)
 async def process_question(message: Message, state: FSMContext) -> None:
-    transformer = await Transformer.a_get()
-    articles_similarity = await transformer.a_find_n_similar(message.text, 3)
-    flags = {q: transformer.get_flags(q) for q, _ in articles_similarity}
+    solver = await Solver.a_get()
+    articles_similarity = await solver.a_find_n_similar(message.text, 3)
+    flags = {q: solver.get_flags(q) for q, _ in articles_similarity}
     if not articles_similarity:
         await state.update_data(question=message.text)
         await state.set_state(Support.first_level)
         raise app.NotFound()
-    elif articles_similarity[0][1] >= transformer.consider_similar:
+    elif articles_similarity[0][1] >= solver.consider_similar:
         answer = await KnowledgeBase.objects.filter(
             question=articles_similarity[0][0]
         ).afirst()

@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from question_app.utils import Transformer
+from question_app.utils import Solver
 
 
 class Article(BaseModel):
@@ -21,12 +21,10 @@ class SearchResult(BaseModel):
     result_len: int = 0
 
     @classmethod
-    def default(
-        cls, question: str, top: int, transformer: Transformer
-    ) -> "SearchResult":
+    def default(cls, question: str, top: int, solver: Solver) -> "SearchResult":
         return cls(
             search_query=question,
             top_n=top,
-            similarity_threshold=transformer.similarity_threshold,
-            consider_similar=transformer.consider_similar,
+            similarity_threshold=solver.similarity_threshold,
+            consider_similar=solver.consider_similar,
         )
