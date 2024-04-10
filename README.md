@@ -64,7 +64,7 @@ Visit <http://localhost:8000/questions> to view, search, and edit the knowledge 
 
 ### 7. API Usage
 
-The FastAPI documentation available at <http://localhost:800/docs> details the available endpoints for webhooks, bot status, and similar searches.
+The FastAPI documentation available at <http://localhost:8000/docs> details the available endpoints for webhooks, bot status, and similar searches.
 
 ### 8. Contributing
 
