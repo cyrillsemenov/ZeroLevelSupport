@@ -1,4 +1,5 @@
 import logging
+import os
 
 from aiogram import F, Router, flags
 from aiogram.enums import ChatAction
@@ -10,6 +11,7 @@ from aiogram.types import (
     Message,
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
+    WebAppInfo,
 )
 from aiogram.types.error_event import ErrorEvent
 
@@ -45,11 +47,24 @@ async def process_question(message: Message, state: FSMContext) -> None:
             question=articles_similarity[0][0]
         ).afirst()
         anwer_flags = flags.get(answer.question, [])
-        print(anwer_flags)
-        print(flags)
         if anwer_flags:
             if "Report" in anwer_flags:
-                await message.answer("Fire!")
+                await state.clear()
+                await message.answer(
+                    "Хотите сообщить о проблеме?",
+                    reply_markup=ReplyKeyboardMarkup(
+                        keyboard=[
+                            [
+                                KeyboardButton(
+                                    text="Заполнить анкету",
+                                    web_app=WebAppInfo(url=os.getenv("WEB_APP_URL")),
+                                )
+                            ],
+                            [KeyboardButton(text="Cancel")],
+                        ]
+                    ),
+                )
+                return
         await message.answer(
             f"{answer.answer}\n\n<b>Так же предлагаю прочитать ответы вот на эти вопросы:</b>",
             reply_markup=ReplyKeyboardMarkup(

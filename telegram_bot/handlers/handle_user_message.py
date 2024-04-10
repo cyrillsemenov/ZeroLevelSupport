@@ -4,7 +4,6 @@ from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove
-# from loguru import logger
 
 from ..app.app import App
 from ..handlers.support import Support

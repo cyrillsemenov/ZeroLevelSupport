@@ -95,8 +95,6 @@ class Transformer:
         s = self.update_vectors(Synonym)
         if s:
             self._synonyms.update({q.question: q.get_embedding() for q in s})
-        # self.update_vectors(KnowledgeBase, self._base, update_all)
-        # self.update_vectors(Synonym, self._synonyms)
 
     def find_synonym(self, vector: List[List[float]]) -> Optional[List[List[float]]]:
         synonyms = cosine_similarity(vector, list(self._synonyms.values()))

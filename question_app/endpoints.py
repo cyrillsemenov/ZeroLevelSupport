@@ -19,7 +19,7 @@ async def verify_secret(x_telegram_bot_api_secret_token: Annotated[str, Header()
 
 @api_router.post(
     settings.WEBHOOK_PATH,
-    response_model=types.Update,
+    response_model=types.Update | types.ErrorEvent,
     dependencies=[
         Depends(verify_secret),
     ],
@@ -33,7 +33,10 @@ async def bot_webhook(bot_token: str, update: dict, request: Request):
     await dp._process_update(bot=bot, update=telegram_update)
 
 
-@api_router.get(settings.WEBHOOK_PATH, response_model=types.User)
+@api_router.get(
+    settings.WEBHOOK_PATH,
+    # response_model=types.User,
+)
 async def bot_status(bot_token: str, request: Request):
     if bot_token != settings.BOT_API_KEY:
         raise HTTPException(status_code=404)
