@@ -4,7 +4,18 @@ from enum import Enum
 
 import yaml
 from asgiref.sync import sync_to_async
-from django.db import models
+from django.db.models import (
+    CASCADE,
+    BigIntegerField,
+    BooleanField,
+    CharField,
+    DateTimeField,
+    ForeignKey,
+    ManyToManyField,
+    Model,
+    TextField,
+    URLField,
+)
 from django.forms import model_to_dict
 
 
@@ -14,15 +25,15 @@ class GroupNames(Enum):
     BANNED = "Banned"
 
 
-class Group(models.Model):
-    name = models.CharField(max_length=16)
-    banned = models.BooleanField()
-    is_admin = models.BooleanField()
+class Group(Model):
+    name = CharField(max_length=16)
+    banned = BooleanField()
+    is_admin = BooleanField()
 
 
-class User(models.Model):
-    tg_id = models.BigIntegerField(primary_key=True)
-    groups = models.ForeignKey(Group, related_name="users", on_delete=models.CASCADE)
+class User(Model):
+    tg_id = BigIntegerField(primary_key=True)
+    groups = ForeignKey(Group, related_name="users", on_delete=CASCADE)
 
     @property
     def is_banned(self):
@@ -37,8 +48,8 @@ class User(models.Model):
         await sync_to_async(self.assign_user_to_group)(group_name)
 
 
-class Status(models.Model):
-    name = models.CharField(
+class Status(Model):
+    name = CharField(
         max_length=255
     )  # Don't forget to specify max_length for CharFields
 
@@ -49,30 +60,26 @@ class Status(models.Model):
         verbose_name_plural = "statuses"
 
 
-class Service(models.Model):
-    name = models.CharField(max_length=255)
-    status = models.ForeignKey(
-        Status, related_name="services", on_delete=models.CASCADE
-    )
+class Service(Model):
+    name = CharField(max_length=255)
+    status = ForeignKey(Status, related_name="services", on_delete=CASCADE)
 
     def __str__(self):
         return f"{self.name} (Status: {self.status.name})"
 
 
-class Report(models.Model):
-    provider_value = models.CharField(max_length=255, blank=True, null=True)
-    region_value = models.CharField(max_length=255, blank=True, null=True)
-    url = models.URLField(blank=True, null=True)
-    comment_value = models.TextField(blank=True, null=True)
-    status = models.ForeignKey(
-        Status, related_name="reports", on_delete=models.CASCADE, null=True
-    )
-    time = models.DateTimeField(auto_now=True)
-    # is_vpn_used = models.BooleanField(default=False, blank=True)
-    is_vpn_used = models.CharField(max_length=255, blank=True, null=True)
-    vpn_provider = models.CharField(max_length=255, blank=True, null=True)
-    vpn_protocol = models.CharField(max_length=255, blank=True, null=True)
-    services = models.ManyToManyField(Service, blank=True)
+class Report(Model):
+    provider_value = CharField(max_length=255, blank=True, null=True)
+    region_value = CharField(max_length=255, blank=True, null=True)
+    url = URLField(blank=True, null=True)
+    comment_value = TextField(blank=True, null=True)
+    status = ForeignKey(Status, related_name="reports", on_delete=CASCADE, null=True)
+    time = DateTimeField(auto_now=True)
+    # is_vpn_used = BooleanField(default=False, blank=True)
+    is_vpn_used = CharField(max_length=255, blank=True, null=True)
+    vpn_provider = CharField(max_length=255, blank=True, null=True)
+    vpn_protocol = CharField(max_length=255, blank=True, null=True)
+    services = ManyToManyField(Service, blank=True)
 
     def __str__(self):
         return f"Report at {self.time}"

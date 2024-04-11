@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from question_app.utils import Solver
+from question_app.solver import Solver
 
 
 class Article(BaseModel):

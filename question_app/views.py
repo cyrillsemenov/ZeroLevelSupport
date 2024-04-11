@@ -2,8 +2,8 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import KnowledgeBaseForm
-from .models import KnowledgeBase
-from .utils import Solver
+from .solver import Solver
+from .solver.adapters.django import KnowledgeBase
 
 
 def add_article(request):

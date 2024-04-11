@@ -5,9 +5,9 @@ from django.conf import settings
 from fastapi import APIRouter, Depends, Header, HTTPException
 from starlette.requests import Request
 
-from question_app.models import KnowledgeBase
 from question_app.schemas import Article, SearchResult
-from question_app.utils import Solver
+from question_app.solver import Solver
+from question_app.solver.adapters.django import KnowledgeBase
 
 api_router = APIRouter()
 
@@ -19,7 +19,7 @@ async def verify_secret(x_telegram_bot_api_secret_token: Annotated[str, Header()
 
 @api_router.post(
     settings.WEBHOOK_PATH,
-    response_model=types.Update | types.ErrorEvent,
+    # response_model=types.Update | types.ErrorEvent,
     dependencies=[
         Depends(verify_secret),
     ],
@@ -35,7 +35,7 @@ async def bot_webhook(bot_token: str, update: dict, request: Request):
 
 @api_router.get(
     settings.WEBHOOK_PATH,
-    # response_model=types.User,
+    response_model=types.User,
 )
 async def bot_status(bot_token: str, request: Request):
     if bot_token != settings.BOT_API_KEY:
@@ -46,7 +46,8 @@ async def bot_status(bot_token: str, request: Request):
 
 @api_router.get("/similar", response_model=SearchResult)
 def get_n_similar(question: str = "", n: int = 5):
-    solver = Solver.get()
+    solver = Solver()
+    # .get()
     result = SearchResult.default(question, n, solver)
     if question:
         articles_similarity = solver.find_n_similar(question, n)

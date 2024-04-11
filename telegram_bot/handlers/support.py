@@ -15,8 +15,8 @@ from aiogram.types import (
 )
 from aiogram.types.error_event import ErrorEvent
 
-from question_app.models import KnowledgeBase
-from question_app.utils import Solver
+from question_app.solver import Solver
+from question_app.solver.adapters.django import KnowledgeBase
 
 from ..app.app import App
 from ..keyboards import welcome_kb
@@ -35,9 +35,10 @@ class Support(StatesGroup):
 @router.message(Support.zero_level)
 @flags.chat_action(initial_sleep=2, action=ChatAction.TYPING, interval=3)
 async def process_question(message: Message, state: FSMContext) -> None:
-    solver = await Solver.a_get()
+    solver = Solver()
+    # .a_get()
     articles_similarity = await solver.a_find_n_similar(message.text, 3)
-    flags = {q: solver.get_flags(q) for q, _ in articles_similarity}
+    flags = {q: await solver.a_get_flags(q) for q, _ in articles_similarity}
     if not articles_similarity:
         await state.update_data(question=message.text)
         await state.set_state(Support.first_level)

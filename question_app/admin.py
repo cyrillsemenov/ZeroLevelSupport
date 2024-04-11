@@ -1,7 +1,8 @@
 from django.contrib import admin, messages
 
-from .models import Flag, KnowledgeBase, Synonym
-from .utils import Solver
+from question_app.solver import Solver
+
+from .solver.adapters.django import Flag, KnowledgeBase, Synonym
 
 
 @admin.register(KnowledgeBase)
@@ -26,13 +27,10 @@ class KnowledgeBaseAdmin(admin.ModelAdmin):
     embedding_indicator.short_description = "Embedding Created"
 
     def update_embedding(self, request, queryset):
-        solver = Solver.get()
+        solver = Solver()
+        # .get()
         for kb in queryset:
-            embedding = solver.generate_embeddings(
-                [
-                    kb.question,
-                ]
-            )
+            embedding = solver.encoder.generate_embeddings(kb.question)
             kb.set_embedding(embedding)
             kb.save()
         self.message_user(
