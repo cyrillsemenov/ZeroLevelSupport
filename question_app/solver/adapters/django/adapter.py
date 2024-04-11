@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 import sniffio
@@ -18,6 +19,19 @@ def is_async() -> bool:
         return sniffio.current_async_library() is not None
     except sniffio.AsyncLibraryNotFoundError:
         return False
+
+
+def async_aware(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if is_async():
+            print(f"Async call {func.__name__}")
+            return sync_to_async(func)(*args, **kwargs)
+        else:
+            print(f"Sync call {func.__name__}")
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
 def execute_in_context(func, *args, **kwargs):
@@ -40,6 +54,7 @@ async def get_objects_async(
 
 
 class DjangoAdapter(DatabaseAdapterBase):
+    @async_aware
     def update_vectors(self, update_all: bool = False):
         self.get_knowledge.cache_clear()
         self.get_synonyms.cache_clear()
@@ -53,13 +68,15 @@ class DjangoAdapter(DatabaseAdapterBase):
 
         def save(vectors):
             for question, embedding in zip(questions, vectors):
-                if is_async():
-                    execute_in_context(question.aset_embedding, embedding)
-                else:
-                    execute_in_context(question.set_embedding, embedding)
+                question.set_embedding(embedding)
+                # if is_async():
+                #     execute_in_context(question.aset_embedding, embedding)
+                # else:
+                #     execute_in_context(question.set_embedding, embedding)
 
         return question_titles, save
 
+    @async_aware
     @lru_cache(maxsize=64)
     def get_knowledge(self, question: Optional[str] = None) -> Tuple[ArticleSchema]:
         filters = [
@@ -78,6 +95,7 @@ class DjangoAdapter(DatabaseAdapterBase):
             for o in objects
         ]
 
+    @async_aware
     @lru_cache(maxsize=64)
     def get_synonyms(self, question: Optional[str] = None) -> Tuple[SynonymSchema]:
         filters = [
