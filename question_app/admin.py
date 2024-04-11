@@ -28,7 +28,6 @@ class KnowledgeBaseAdmin(admin.ModelAdmin):
 
     def update_embedding(self, request, queryset):
         solver = Solver()
-        # .get()
         for kb in queryset:
             embedding = solver.encoder.generate_embeddings(kb.question)
             kb.set_embedding(embedding)

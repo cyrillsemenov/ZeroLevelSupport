@@ -19,8 +19,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         solver = Solver()
-        # .get(api_key=options["api_key"])
-        # solver.update_base(options["update_all"])
         titles, save = solver.database.update_vectors(options["update_all"])
         save(solver.encoder.generate_embeddings(titles))
 

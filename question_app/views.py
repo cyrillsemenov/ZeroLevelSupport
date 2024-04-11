@@ -57,7 +57,7 @@ def article_detail(request, pk):
 def similar_articles_view(request):
     search_query = request.GET.get("query", "")
     top_n = int(request.GET.get("top", 5))
-    solver = Solver.get()
+    solver = Solver()
 
     context = {
         "articles_with_similarity": [],

@@ -47,7 +47,6 @@ async def bot_status(bot_token: str, request: Request):
 @api_router.get("/similar", response_model=SearchResult)
 def get_n_similar(question: str = "", n: int = 5):
     solver = Solver()
-    # .get()
     result = SearchResult.default(question, n, solver)
     if question:
         articles_similarity = solver.find_n_similar(question, n)
